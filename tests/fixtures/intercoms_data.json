@@ -1,0 +1,65 @@
+{
+    "addresses": {
+        "Testovaya street 1": [
+            {
+                "ble_active": true,
+                "ble_major": "",
+                "ble_minor": "",
+                "ble_rssi": null,
+                "ble_uuid": "",
+                "building_address": "Testovaya street 1",
+                "building_id": 1000,
+                "gate_name": "Entrance №2 Door №1",
+                "id": 1,
+                "intercom_name": "Entrance №2 Door №1",
+                "mute": false,
+                "schedules": [],
+                "sip_login": "G0001",
+                "stream_url": "https://test.com/intercom_1/index.m3u8?token=2.0000000000"
+            },
+            {
+                "ble_active": true,
+                "ble_major": "",
+                "ble_minor": "",
+                "ble_rssi": null,
+                "ble_uuid": "",
+                "building_address": "Testovaya street 1",
+                "building_id": 1000,
+                "gate_name": "Entrance №2 Door №2",
+                "id": 2,
+                "intercom_name": "Entrance №2 Door №2",
+                "mute": false,
+                "schedules": [],
+                "sip_login": "G0002",
+                "stream_url": "https://test.com/intercom_2/index.m3u8?token=2.0000000000"
+            },
+            {
+                "ble_active": true,
+                "ble_major": "",
+                "ble_minor": "",
+                "ble_rssi": null,
+                "ble_uuid": "",
+                "building_address": "Testovaya street 1",
+                "building_id": 1000,
+                "gate_name": "Entrance №2 Door №3",
+                "id": 3,
+                "intercom_name": "Entrance №2 Door №3",
+                "mute": false,
+                "schedules": [],
+                "sip_login": "G0003",
+                "stream_url": "https://test.com/intercom_3/index.m3u8?token=2.0000000000"
+            }
+        ]
+    },
+    "apartments": [
+        {
+            "address": "Testovaya street 1 Apartment №52",
+            "building_id": 1000,
+            "guests": [],
+            "id": 1,
+            "remaining_invites": 0
+        }
+    ],
+    "mute": false,
+    "success": true
+}

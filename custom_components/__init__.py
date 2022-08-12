@@ -1,0 +1,1 @@
+"""Tattelecom intercom custom integration."""

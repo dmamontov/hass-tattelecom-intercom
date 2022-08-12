@@ -1,0 +1,67 @@
+{
+  "config": {
+    "error": {
+      "unauthorized.error": "An authorization error has occurred. Most likely, you are authorized on another resource.",
+      "connection.error": "A network error has occurred. Try later."
+    },
+    "step": {
+      "phone": {
+        "title": "Tattelecom Intercom settings",
+        "description": "Enter a phone number starting with 7.",
+        "data": {
+          "phone": "Phone number"
+        }
+      },
+      "register": {
+        "title": "Tattelecom Intercom settings",
+        "description": "Enter login.",
+        "data": {
+          "login": "Login"
+        }
+      },
+      "confirm": {
+        "title": "Tattelecom Intercom settings",
+        "description": "Enter the code sent to you by SMS.",
+        "data": {
+          "sms_code": "SMS code"
+        }
+      }
+    }
+  },
+  "options": {
+    "error": {
+      "unauthorized.error": "An authorization error has occurred. Most likely, you are authorized on another resource.",
+      "connection.error": "A network error has occurred. Try later."
+    },
+    "step": {
+      "phone": {
+        "title": "Tattelecom Intercom settings",
+        "description": "If you change your phone number, authorization will start from the very beginning.",
+        "data": {
+          "phone": "Phone number",
+          "scan_interval": "Scan interval in seconds [PRO]",
+          "timeout": "Timeout of requests in seconds [PRO]"
+        }
+      },
+      "register": {
+        "title": "Tattelecom Intercom settings",
+        "description": "Enter login.",
+        "data": {
+          "login": "Login"
+        }
+      },
+      "confirm": {
+        "title": "Tattelecom Intercom settings",
+        "description": "Enter the code sent to you by SMS.",
+        "data": {
+          "sms_code": "SMS code"
+        }
+      }
+    }
+  },
+  "system_health": {
+    "info": {
+      "version": "Version"
+    }
+  }
+}
