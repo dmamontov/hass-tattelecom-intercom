@@ -1,6 +1,6 @@
 """Tests for the tattelecom_intercom component."""
 
-# pylint: disable=no-member,too-many-statements,protected-access,too-many-lines
+# pylint: disable=no-member,too-many-statements,protected-access,too-many-lines,broad-except
 
 from __future__ import annotations
 
@@ -13,7 +13,11 @@ from unittest.mock import AsyncMock
 from homeassistant import setup
 from homeassistant.const import CONF_SCAN_INTERVAL, CONF_TOKEN
 from homeassistant.core import HomeAssistant
-from pytest_homeassistant_custom_component.common import MockConfigEntry, load_fixture
+from pytest_homeassistant_custom_component.common import (
+    MockConfigEntry,
+    get_fixture_path,
+    load_fixture,
+)
 
 from custom_components.tattelecom_intercom.const import (
     CLIENT_URL,
@@ -22,9 +26,11 @@ from custom_components.tattelecom_intercom.const import (
     OPTION_IS_FROM_FLOW,
     UPDATER,
 )
-from custom_components.tattelecom_intercom.enum import ApiVersion
+from custom_components.tattelecom_intercom.enum import ApiVersion, CallState
 from custom_components.tattelecom_intercom.helper import get_config_value
+from custom_components.tattelecom_intercom.sip import MessageParser
 from custom_components.tattelecom_intercom.updater import IntercomUpdater
+from custom_components.tattelecom_intercom.voip import Call, IntercomVoip
 
 MOCK_PHONE: Final = 79998887766
 MOCK_LOGIN: Final = "test"
@@ -32,6 +38,13 @@ MOCK_CODE: Final = "123456"
 MOCK_TOKEN: Final = "000000000000000000000000000000000"
 MOCK_INTERCOM_ID: Final = 1
 MOCK_SCAN_INTERVAL: Final = 10
+
+MOCK_LOCAL_PORT: Final = 60266
+MOCK_IP: Final = "127.0.0.1"
+MOCK_ADDRESS: Final = "217.0.0.1"
+MOCK_PORT: Final = 9740
+MOCK_USERNAME: Final = "D100000"
+MOCK_PASSWORD: Final = "test"
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -94,6 +107,9 @@ async def async_mock_client(mock_client) -> None:
     mock_client.return_value.intercoms = AsyncMock(
         return_value=json.loads(load_fixture("intercoms_data.json"))
     )
+    mock_client.return_value.streams = AsyncMock(
+        return_value=json.loads(load_fixture("streams_data.json"))
+    )
     mock_client.return_value.open = AsyncMock(
         return_value=json.loads(load_fixture("open_data.json"))
     )
@@ -105,6 +121,22 @@ async def async_mock_client(mock_client) -> None:
     )
     mock_client.return_value.schedule = AsyncMock(
         return_value=json.loads(load_fixture("schedule_data.json"))
+    )
+
+
+async def async_mock_call(
+    phone: IntercomVoip, message: str, state: CallState = CallState.RINGING
+) -> Call:
+    """Mock call
+
+    :param phone: IntercomVoip
+    :param message: str
+    :param state: CallState
+    :return call
+    """
+
+    return Call(
+        phone, state, await MessageParser().parse(message.encode("utf-8")), 1, MOCK_IP
     )
 
 
@@ -125,6 +157,12 @@ def get_url(
     return CLIENT_URL.format(api_version=ApiVersion.V1, path=path)
 
 
+def get_audio_fixture_path(file_name: str) -> str:
+    """Get wav fixture path"""
+
+    return str(get_fixture_path(file_name))
+
+
 class MultipleSideEffect:  # pylint: disable=too-few-public-methods
     """Multiple side effect"""
 
@@ -136,5 +174,8 @@ class MultipleSideEffect:  # pylint: disable=too-few-public-methods
     def __call__(self, *args, **kwargs):
         """call"""
 
-        func = next(self.funcs)
-        return func(*args, **kwargs)
+        try:
+            func = next(self.funcs)
+            return func(*args, **kwargs)
+        except Exception:
+            return ""

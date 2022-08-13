@@ -6,15 +6,14 @@ from __future__ import annotations
 
 import logging
 from datetime import timedelta
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 import pytest
 from homeassistant.components.camera import ENTITY_ID_FORMAT as CAMERA_ENTITY_ID_FORMAT
-from homeassistant.const import STATE_IDLE
+from homeassistant.components.camera import STATE_STREAMING
 from homeassistant.core import HomeAssistant, State
 from homeassistant.util.dt import utcnow
 from pytest_homeassistant_custom_component.common import async_fire_time_changed
-from pytest_socket import enable_socket
 
 from custom_components.tattelecom_intercom.const import (
     ATTRIBUTION,
@@ -24,6 +23,7 @@ from custom_components.tattelecom_intercom.const import (
     MAINTAINER,
     UPDATER,
 )
+from custom_components.tattelecom_intercom.exceptions import IntercomError
 from custom_components.tattelecom_intercom.helper import generate_entity_id
 from custom_components.tattelecom_intercom.updater import IntercomUpdater
 from tests.setup import MOCK_INTERCOM_ID, async_mock_client, async_setup
@@ -38,7 +38,7 @@ def auto_enable_custom_integrations(enable_custom_integrations):
     yield
 
 
-async def test_init(hass: HomeAssistant, socket_enabled) -> None:
+async def test_init(hass: HomeAssistant) -> None:
     """Test init.
 
     :param hass: HomeAssistant
@@ -48,7 +48,15 @@ async def test_init(hass: HomeAssistant, socket_enabled) -> None:
         "custom_components.tattelecom_intercom.updater.IntercomClient"
     ) as mock_client, patch(
         "custom_components.tattelecom_intercom.updater.async_dispatcher_send"
-    ):
+    ), patch(
+        "custom_components.tattelecom_intercom.updater.asyncio.sleep", return_value=None
+    ), patch(
+        "custom_components.tattelecom_intercom.sip.socket.socket"
+    ) as mock_socket:
+        mock_socket.return_value.setblocking = Mock(return_value=None)
+        mock_socket.return_value.recv = Mock(return_value=None)
+        mock_socket.return_value.sendto = Mock(side_effect=IntercomError)
+
         await async_mock_client(mock_client)
 
         _, config_entry = await async_setup(hass)
@@ -73,7 +81,7 @@ async def test_init(hass: HomeAssistant, socket_enabled) -> None:
         state: State = hass.states.get(
             _generate_id(str(MOCK_INTERCOM_ID), updater.phone)
         )
-        assert state.state == STATE_IDLE
+        assert state.state == STATE_STREAMING
         assert state.name == CAMERA_NAME
         assert state.attributes["icon"] == "mdi:doorbell-video"
         assert state.attributes["brand"] == MAINTAINER

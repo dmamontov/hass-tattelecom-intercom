@@ -48,6 +48,16 @@ async def test_signin(hass: HomeAssistant, httpx_mock: HTTPXMock) -> None:
     assert request is not None
     assert request.url == get_url("subscriber/signin")
     assert request.method == Method.POST
+    assert dict(request.headers.items()) == {
+        "accept": "application/json",
+        "accept-charset": "UTF-8",
+        "accept-encoding": "gzip",
+        "connection": "keep-alive",
+        "content-length": "83",
+        "content-type": "application/json",
+        "host": "domofon.tattelecom.ru",
+        "user-agent": "Ktor client",
+    }
 
 
 async def test_signin_connection_error(
@@ -247,6 +257,17 @@ async def test_update_push_token(hass: HomeAssistant, httpx_mock: HTTPXMock) -> 
     assert request is not None
     assert request.url == get_url("subscriber/update-push-token")
     assert request.method == Method.POST
+    assert dict(request.headers.items()) == {
+        "accept": "application/json",
+        "accept-charset": "UTF-8",
+        "accept-encoding": "gzip",
+        "access-token": "test",
+        "connection": "keep-alive",
+        "content-length": "109",
+        "content-type": "application/json",
+        "host": "domofon.tattelecom.ru",
+        "user-agent": "Ktor client",
+    }
 
 
 async def test_update_push_token_connection_error(

@@ -1,0 +1,1 @@
+SIP/2.0 603 Decline\r\nVia: SIP/2.0/UDP 217.0.0.1:9740;branch=z9hG4bK3383e7bf;rport\r\nFrom: "G0001" <sip:G0001@217.0.0.1:9740>;tag=as79e57a2a\r\nTo: <sip:D100000@172.0.0.1:17702;transport=udp>;tag=538a36bc\r\nCall-ID: 42707deb5c366d722cf1ae041d97ac1d@217.0.0.1:9740\r\nCSeq: 102 INVITE\r\nUser-Agent: Unknown (belle-sip/4.4.0)\r\nSupported: replaces, outbound, gruu\r\n\r\n

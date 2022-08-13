@@ -61,7 +61,9 @@
   },
   "system_health": {
     "info": {
-      "version": "Version"
+      "version": "Version",
+      "update_state": "Update state",
+      "sip_state": "SIP state"
     }
   }
 }

@@ -7,7 +7,7 @@ from __future__ import annotations
 import json
 import logging
 from datetime import timedelta
-from unittest.mock import AsyncMock, patch
+from unittest.mock import AsyncMock, Mock, patch
 
 import pytest
 from homeassistant.components.binary_sensor import (
@@ -24,13 +24,14 @@ from pytest_homeassistant_custom_component.common import (
 )
 
 from custom_components.tattelecom_intercom.const import (
-    ATTR_STATE_NAME,
+    ATTR_UPDATE_STATE_NAME,
     ATTRIBUTION,
     DEFAULT_SCAN_INTERVAL,
     DOMAIN,
     UPDATER,
 )
 from custom_components.tattelecom_intercom.exceptions import (
+    IntercomError,
     IntercomRequestError,
     IntercomUnauthorizedError,
 )
@@ -58,7 +59,15 @@ async def test_init(hass: HomeAssistant) -> None:
         "custom_components.tattelecom_intercom.updater.IntercomClient"
     ) as mock_client, patch(
         "custom_components.tattelecom_intercom.updater.async_dispatcher_send"
-    ):
+    ), patch(
+        "custom_components.tattelecom_intercom.updater.asyncio.sleep", return_value=None
+    ), patch(
+        "custom_components.tattelecom_intercom.sip.socket.socket"
+    ) as mock_socket:
+        mock_socket.return_value.setblocking = Mock(return_value=None)
+        mock_socket.return_value.recv = Mock(return_value=None)
+        mock_socket.return_value.sendto = Mock(side_effect=IntercomError)
+
         await async_mock_client(mock_client)
 
         _, config_entry = await async_setup(hass)
@@ -75,10 +84,11 @@ async def test_init(hass: HomeAssistant) -> None:
 
         assert updater.last_update_success
 
-        state: State = hass.states.get(_generate_id(ATTR_STATE_NAME, updater.phone))
-        assert state.state == STATE_ON
-        assert state.name == ATTR_STATE_NAME
-        assert state.attributes["icon"] == "mdi:lan-connect"
+        state: State = hass.states.get(
+            _generate_id(ATTR_UPDATE_STATE_NAME, updater.phone)
+        )
+        assert state.state == STATE_OFF
+        assert state.name == ATTR_UPDATE_STATE_NAME
         assert state.attributes["attribution"] == ATTRIBUTION
 
 
@@ -92,7 +102,15 @@ async def test_update_state(hass: HomeAssistant) -> None:
         "custom_components.tattelecom_intercom.updater.IntercomClient"
     ) as mock_client, patch(
         "custom_components.tattelecom_intercom.updater.async_dispatcher_send"
-    ):
+    ), patch(
+        "custom_components.tattelecom_intercom.updater.asyncio.sleep", return_value=None
+    ), patch(
+        "custom_components.tattelecom_intercom.sip.socket.socket"
+    ) as mock_socket:
+        mock_socket.return_value.setblocking = Mock(return_value=None)
+        mock_socket.return_value.recv = Mock(return_value=None)
+        mock_socket.return_value.sendto = Mock(side_effect=IntercomError)
+
         await async_mock_client(mock_client)
 
         def success() -> dict:
@@ -115,13 +133,12 @@ async def test_update_state(hass: HomeAssistant) -> None:
 
         assert updater.last_update_success
 
-        unique_id: str = _generate_id(ATTR_STATE_NAME, updater.phone)
+        unique_id: str = _generate_id(ATTR_UPDATE_STATE_NAME, updater.phone)
 
         entry: er.RegistryEntry | None = registry.async_get(unique_id)
         state: State = hass.states.get(unique_id)
-        assert state.state == STATE_ON
-        assert state.name == ATTR_STATE_NAME
-        assert state.attributes["icon"] == "mdi:lan-connect"
+        assert state.state == STATE_OFF
+        assert state.name == ATTR_UPDATE_STATE_NAME
         assert state.attributes["attribution"] == ATTRIBUTION
         assert entry is not None
         assert entry.entity_category == EntityCategory.DIAGNOSTIC
@@ -132,8 +149,7 @@ async def test_update_state(hass: HomeAssistant) -> None:
         await hass.async_block_till_done()
 
         state = hass.states.get(unique_id)
-        assert state.state == STATE_OFF
-        assert state.attributes["icon"] == "mdi:lan-disconnect"
+        assert state.state == STATE_ON
 
 
 async def test_update_state_auth_error(hass: HomeAssistant) -> None:
@@ -148,7 +164,15 @@ async def test_update_state_auth_error(hass: HomeAssistant) -> None:
         "custom_components.tattelecom_intercom.config_flow.IntercomClient"
     ) as mock_client_in_flow, patch(
         "custom_components.tattelecom_intercom.updater.async_dispatcher_send"
-    ):
+    ), patch(
+        "custom_components.tattelecom_intercom.updater.asyncio.sleep", return_value=None
+    ), patch(
+        "custom_components.tattelecom_intercom.sip.socket.socket"
+    ) as mock_socket:
+        mock_socket.return_value.setblocking = Mock(return_value=None)
+        mock_socket.return_value.recv = Mock(return_value=None)
+        mock_socket.return_value.sendto = Mock(side_effect=IntercomError)
+
         await async_mock_client(mock_client)
         await async_mock_client(mock_client_in_flow)
 
@@ -172,13 +196,12 @@ async def test_update_state_auth_error(hass: HomeAssistant) -> None:
 
         assert updater.last_update_success
 
-        unique_id: str = _generate_id(ATTR_STATE_NAME, updater.phone)
+        unique_id: str = _generate_id(ATTR_UPDATE_STATE_NAME, updater.phone)
 
         entry: er.RegistryEntry | None = registry.async_get(unique_id)
         state: State = hass.states.get(unique_id)
-        assert state.state == STATE_ON
-        assert state.name == ATTR_STATE_NAME
-        assert state.attributes["icon"] == "mdi:lan-connect"
+        assert state.state == STATE_OFF
+        assert state.name == ATTR_UPDATE_STATE_NAME
         assert state.attributes["attribution"] == ATTRIBUTION
         assert entry is not None
         assert entry.entity_category == EntityCategory.DIAGNOSTIC

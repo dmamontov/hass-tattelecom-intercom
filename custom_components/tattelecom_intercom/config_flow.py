@@ -20,6 +20,7 @@ from .const import (
     DEFAULT_SCAN_INTERVAL,
     DEFAULT_TIMEOUT,
     DOMAIN,
+    MIN_SCAN_INTERVAL,
     OPTION_IS_FROM_FLOW,
     PHONE_MAX,
     PHONE_MIN,
@@ -225,6 +226,9 @@ class IntercomConfigFlow(IntercomFlow, config_entries.ConfigFlow, domain=DOMAIN)
         :return FlowResult: Result object
         """
 
+        if self._async_current_entries():  # pragma: no cover
+            return self.async_abort(reason="single_instance_allowed")
+
         return await self.async_step_phone(user_input or {})
 
     async def async_step_reauth(
@@ -358,7 +362,7 @@ class IntercomOptionsFlow(IntercomFlow, config_entries.OptionsFlow):
                                 DEFAULT_SCAN_INTERVAL,
                             ),
                         ),
-                    ): vol.All(vol.Coerce(int), vol.Range(min=DEFAULT_TIMEOUT)),
+                    ): vol.All(vol.Coerce(int), vol.Range(min=MIN_SCAN_INTERVAL)),
                     vol.Required(
                         CONF_TIMEOUT,
                         default=user_input.get(

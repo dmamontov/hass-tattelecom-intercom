@@ -16,9 +16,9 @@ jobs:
       - uses: dmamontov/hass-py-lint@main
         with:
           hass-version: ">=2022.4.0"
-          path: "custom_components/seafile tests"
+          path: "custom_components/tattelecom_intercom tests"
           use-pytest: true
-          extra-pylint-options: "--disable=unused-argument"
+          extra-pylint-options: "--disable=unused-argument --disable=fixme"
 
   codeql:
     runs-on: ubuntu-latest

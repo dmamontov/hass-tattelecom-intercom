@@ -1,0 +1,1 @@
+SIP/2.0 400 Bad Request\r\nVia: SIP/2.0/UDP 127.0.0.1:60266;ranch=z9hG4bK.653b820a3;received=172.0.0.1;rport=60266\r\nTo: ;tag=as2fc5290c\r\nCall-ID: 6b86b273ff\r\nCSeq: 20 REGISTER\r\nServer: df\r\nAllow: INVITE, ACK, CANCEL, OPTIONS, BYE, REFER, SUBSCRIBE, NOTIFY, INFO, PUBLISH, MESSAGE\r\nSupported: replaces, timer\r\nContent-Length: 0\r\n\r\n

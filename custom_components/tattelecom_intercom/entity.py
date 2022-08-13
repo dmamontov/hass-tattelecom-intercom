@@ -7,7 +7,7 @@ import logging
 from homeassistant.helpers.entity import EntityDescription
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .const import ATTR_STATE, ATTRIBUTION
+from .const import ATTRIBUTION
 from .helper import generate_entity_id
 from .updater import IntercomUpdater
 
@@ -48,7 +48,6 @@ class IntercomEntity(CoordinatorEntity):
 
         self._attr_name = description.name
         self._attr_unique_id = unique_id
-        self._attr_available = updater.data.get(ATTR_STATE, False)
 
         self._attr_device_info = updater.device_info
 
@@ -64,9 +63,9 @@ class IntercomEntity(CoordinatorEntity):
         :return bool: Is available
         """
 
-        return self._attr_available and self.coordinator.last_update_success
+        return self.coordinator.last_update_success
 
     def _handle_coordinator_update(self) -> None:
         """Update state."""
 
-        raise NotImplementedError  # pragma: no cover
+        self.async_write_ha_state()  # pragma: no cover

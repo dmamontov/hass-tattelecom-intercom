@@ -3,44 +3,29 @@
 from __future__ import annotations
 
 import logging
-from typing import Final
 
 from homeassistant.components.binary_sensor import (
     ENTITY_ID_FORMAT,
+    BinarySensorDeviceClass,
     BinarySensorEntity,
     BinarySensorEntityDescription,
 )
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import STATE_OFF, STATE_ON
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from .const import ATTR_SIP_STATE, ATTR_SIP_STATE_NAME, ATTR_STATE, ATTR_STATE_NAME
+from .const import ATTR_UPDATE_STATE, ATTR_UPDATE_STATE_NAME
 from .entity import IntercomEntity
 from .updater import IntercomUpdater, async_get_updater
 
 PARALLEL_UPDATES = 0
 
-ICONS: Final = {
-    f"{ATTR_STATE}_{STATE_ON}": "mdi:lan-connect",
-    f"{ATTR_STATE}_{STATE_OFF}": "mdi:lan-disconnect",
-    f"{ATTR_SIP_STATE}_{STATE_ON}": "mdi:phone-voip",
-    f"{ATTR_SIP_STATE}_{STATE_OFF}": "mdi:phone-hangup",
-}
-
 BINARY_SENSORS: tuple[BinarySensorEntityDescription, ...] = (
     BinarySensorEntityDescription(
-        key=ATTR_STATE,
-        name=ATTR_STATE_NAME,
-        icon=ICONS[f"{ATTR_STATE}_{STATE_ON}"],
-        entity_category=EntityCategory.DIAGNOSTIC,
-        entity_registry_enabled_default=True,
-    ),
-    BinarySensorEntityDescription(
-        key=ATTR_SIP_STATE,
-        name=ATTR_SIP_STATE_NAME,
-        icon=ICONS[f"{ATTR_SIP_STATE}_{STATE_ON}"],
+        key=ATTR_UPDATE_STATE,
+        name=ATTR_UPDATE_STATE_NAME,
+        device_class=BinarySensorDeviceClass.PROBLEM,
         entity_category=EntityCategory.DIAGNOSTIC,
         entity_registry_enabled_default=True,
     ),
@@ -93,20 +78,19 @@ class IntercomBinarySensor(IntercomEntity, BinarySensorEntity):
         IntercomEntity.__init__(self, unique_id, description, updater, ENTITY_ID_FORMAT)
 
         self._attr_available: bool = (
-            updater.data.get(ATTR_STATE, False)
-            if description.key != ATTR_STATE
+            updater.data.get(ATTR_UPDATE_STATE, False)
+            if description.key != ATTR_UPDATE_STATE
             else True
         )
 
         self._attr_is_on = updater.data.get(description.key, False)
-        self._change_icon(self._attr_is_on)
 
     def _handle_coordinator_update(self) -> None:
         """Update state."""
 
         is_available: bool = (
-            self._updater.data.get(ATTR_STATE, False)
-            if self.entity_description.key != ATTR_STATE
+            self._updater.data.get(ATTR_UPDATE_STATE, False)
+            if self.entity_description.key != ATTR_UPDATE_STATE
             else True
         )
 
@@ -118,19 +102,4 @@ class IntercomBinarySensor(IntercomEntity, BinarySensorEntity):
         self._attr_available = is_available
         self._attr_is_on = is_on
 
-        self._change_icon(is_on)
-
         self.async_write_ha_state()
-
-    def _change_icon(self, is_on: bool) -> None:
-        """Change icon
-
-        :param is_on: bool
-        """
-
-        icon_name: str = (
-            f"{self.entity_description.key}_{STATE_ON if is_on else STATE_OFF}"
-        )
-
-        if icon_name in ICONS:
-            self._attr_icon = ICONS[icon_name]

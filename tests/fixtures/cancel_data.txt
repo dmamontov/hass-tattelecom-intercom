@@ -1,0 +1,1 @@
+CANCEL sip:D100000@172.0.0.1:23582;transport=udp SIP/2.0\r\nVia: SIP/2.0/UDP 217.0.0.1:9740;branch=z9hG4bK5b4f3518;rport\r\nMax-Forwards: 70\r\nFrom: "G0001" <sip:G0001@217.0.0.1:9740>;tag=as47d4d103\r\nTo: <sip:D100000@172.0.0.1:23582;transport=udp>\r\nCall-ID: 42707deb5c366d722cf1ae041d97ac1d@217.0.0.1:9740\r\nCSeq: 102 CANCEL\r\nUser-Agent: df\r\nContent-Length: 0\r\n\r\n

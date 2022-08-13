@@ -3,7 +3,8 @@
   "config": {
     "error": {
       "unauthorized.error": "An authorization error has occurred. Most likely, you are authorized on another resource.",
-      "connection.error": "A network error has occurred. Try later."
+      "connection.error": "A network error has occurred. Try later.",
+      "single_instance_allowed": "Already configured. Only a single configuration possible."
     },
     "step": {
       "phone": {
@@ -62,7 +63,9 @@
   },
   "system_health": {
     "info": {
-      "version": "Version"
+      "version": "Version",
+      "update_state": "Update state",
+      "sip_state": "SIP state"
     }
   }
 }

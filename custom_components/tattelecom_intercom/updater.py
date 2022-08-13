@@ -1,11 +1,15 @@
 """Tattelecom Intercom data updater."""
 
+
 from __future__ import annotations
 
+import asyncio
+import contextlib
 import logging
 from dataclasses import dataclass
 from datetime import timedelta
 from functools import cached_property
+from random import randint
 from typing import Any
 
 from homeassistant.core import CALLBACK_TYPE, HomeAssistant, callback
@@ -13,11 +17,10 @@ from homeassistant.exceptions import ConfigEntryAuthFailed
 from homeassistant.helpers import event
 from homeassistant.helpers.dispatcher import async_dispatcher_send
 from homeassistant.helpers.entity import DeviceEntryType, DeviceInfo
-from homeassistant.helpers.httpx_client import get_async_client
+from homeassistant.helpers.httpx_client import create_async_httpx_client
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from homeassistant.util import utcnow
-from httpx import codes
-from pyVoIP.VoIP import InvalidStateError, VoIPCall, VoIPPhone
+from httpx import AsyncHTTPTransport, codes
 
 from .client import IntercomClient
 from .const import (
@@ -26,18 +29,25 @@ from .const import (
     ATTR_SIP_LOGIN,
     ATTR_SIP_PASSWORD,
     ATTR_SIP_PORT,
-    ATTR_SIP_STATE,
-    ATTR_STATE,
     ATTR_STREAM_URL,
+    ATTR_UPDATE_STATE,
+    DEFAULT_RETRY,
     DEFAULT_SCAN_INTERVAL,
     DEFAULT_TIMEOUT,
     DOMAIN,
     MAINTAINER,
     NAME,
+    SIGNAL_CALL_STATE,
     SIGNAL_NEW_INTERCOM,
+    SIP_DEFAULT_RETRY,
     UPDATER,
 )
-from .exceptions import IntercomError, IntercomUnauthorizedError
+from .exceptions import (
+    IntercomConnectionError,
+    IntercomError,
+    IntercomUnauthorizedError,
+)
+from .voip import Call, IntercomVoip
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -47,7 +57,9 @@ class IntercomUpdater(DataUpdateCoordinator):
     """Tattelecom Intercom data updater for interaction with Tattelecom intercom API."""
 
     client: IntercomClient
-    sip_client: VoIPPhone | None = None
+
+    voip: IntercomVoip | None = None
+    last_call: Call | None = None
 
     code: codes = codes.BAD_GATEWAY
 
@@ -76,8 +88,13 @@ class IntercomUpdater(DataUpdateCoordinator):
         :param timeout: int: Query execution timeout
         """
 
+        _transport: AsyncHTTPTransport = AsyncHTTPTransport(
+            http1=False, http2=True, retries=3
+        )
         self.client = IntercomClient(
-            get_async_client(hass, False),
+            create_async_httpx_client(
+                hass, True, http1=False, http2=True, transport=_transport
+            ),
             phone,
             token,
             timeout,
@@ -100,16 +117,18 @@ class IntercomUpdater(DataUpdateCoordinator):
 
         self.intercoms: dict[str, IntercomEntityDescription] = {}
 
+        self.code_map: dict[str, int] = {}
+
         self._is_first_update: bool = True
 
     async def async_stop(self) -> None:
         """Stop updater"""
 
-        if self.sip_client and self.data.get(ATTR_SIP_STATE, False):
-            self.sip_client.stop()
-
         for _callback in self.new_intercom_callbacks:
             _callback()  # pylint: disable=not-callable
+
+        if self.voip:
+            await self.voip.stop()
 
     @cached_property
     def _update_interval(self) -> timedelta:
@@ -126,6 +145,9 @@ class IntercomUpdater(DataUpdateCoordinator):
         :return dict: dict with Intercom data.
         """
 
+        if not self._is_first_update:
+            await asyncio.sleep(randint(1, 3) * 60)
+
         self.code = codes.OK
 
         _err: IntercomError | None = None
@@ -139,7 +161,10 @@ class IntercomUpdater(DataUpdateCoordinator):
 
             self.code = codes.SERVICE_UNAVAILABLE
 
-        self.data[ATTR_STATE] = codes.is_success(self.code)
+        self.data[ATTR_UPDATE_STATE] = codes.is_error(self.code)
+
+        if self._is_first_update:
+            self._is_first_update = False
 
         return self.data
 
@@ -182,14 +207,39 @@ class IntercomUpdater(DataUpdateCoordinator):
             utcnow().replace(microsecond=0) + offset,
         )
 
-    async def _async_prepare(self, data: dict) -> None:
+    async def _async_prepare(self, data: dict, retry: int = 1) -> None:
         """Prepare data.
 
         :param data: dict
+        :param retry: int
         """
 
-        await self._async_prepare_intercoms(data)
-        await self._async_prepare_sip_settings(data)
+        _error: IntercomConnectionError | None = None
+
+        try:
+            await self._async_prepare_sip_settings(data)
+        except IntercomConnectionError as _err:  # pragma: no cover
+            _error = _err
+
+        await asyncio.sleep(randint(5, 10))
+
+        try:
+            await self._async_prepare_intercoms(data)
+        except IntercomConnectionError as _err:  # pragma: no cover
+            _error = _err
+
+        with contextlib.suppress(IntercomConnectionError):
+            await self.client.streams()
+
+        if _error:  # pragma: no cover
+            if self._is_first_update and retry <= DEFAULT_RETRY:
+                await asyncio.sleep(retry)
+
+                _LOGGER.debug("Error start. retry (%r): %r", retry, _error)
+
+                return await self._async_prepare(data, retry + 1)
+
+            raise _error
 
     async def _async_prepare_intercoms(self, data: dict) -> None:
         """Prepare intercoms.
@@ -207,6 +257,8 @@ class IntercomUpdater(DataUpdateCoordinator):
 
                     if intercom["id"] in self.intercoms:
                         continue
+
+                    self.code_map[intercom["sip_login"]] = intercom["id"]
 
                     self.intercoms[intercom["id"]] = IntercomEntityDescription(
                         id=intercom["id"],
@@ -239,58 +291,48 @@ class IntercomUpdater(DataUpdateCoordinator):
 
         response: dict = await self.client.sip_settings()
 
+        init: bool = False
         if "success" in response and response["success"]:
             del response["success"]
 
-            _need_init: bool = any(
-                code not in data or value != data[code]
-                for code, value in response.items()
+            init = (
+                len(
+                    [
+                        code
+                        for code, value in response.items()
+                        if code not in data or data[code] != value
+                    ]
+                )
+                > 0
             )
 
             data |= response
 
-            if _need_init:
-                self._start_sip(
-                    response[ATTR_SIP_ADDRESS],
-                    response[ATTR_SIP_LOGIN],
-                    response[ATTR_SIP_PASSWORD],
-                    response[ATTR_SIP_PORT],
+        if init:
+            self.voip = IntercomVoip(
+                self.hass,
+                data[ATTR_SIP_ADDRESS],
+                data[ATTR_SIP_PORT],
+                data[ATTR_SIP_LOGIN],
+                data[ATTR_SIP_PASSWORD],
+                self._call_callback,
+            )
+
+            self.hass.loop.call_soon(
+                lambda: self.hass.async_create_task(
+                    self.voip.safe_start(SIP_DEFAULT_RETRY)
                 )
+            )
 
-    def _start_sip(self, address: str, login: str, password: str, port: int) -> None:
-        """Start sip
+    async def _call_callback(self, call: Call) -> None:  # pragma: no cover
+        """Call callback
 
-        :param address: str: SIP address
-        :param login: str: SIP login
-        :param password: str: SIP password
-        :param port: str: SIP port
+        :param call: Call
         """
 
-        if self.sip_client:
-            self.sip_client.stop()
+        self.last_call = call
 
-        self.sip_client = VoIPPhone(address, port, login, password, self._sip_callback)
-
-        #try:
-        # self.sip_client.start()
-        # self.data[ATTR_SIP_STATE] = True
-        # _LOGGER.error("RRR {}".format(self.sip_client.call("D108614")))
-        # except OSError as _err:
-        #     _LOGGER.error("SIP start error: %r", _err)
-        #
-        #     self.data[ATTR_SIP_STATE] = False
-
-    @callback
-    def _sip_callback(self, call: VoIPCall) -> None:
-        """SIP Callback"""
-
-        _LOGGER.error("RRR {}".format(call))
-
-        try:
-            call.answer()
-            call.hangup()
-        except InvalidStateError as err:
-            _LOGGER.error("RRR %r", err)
+        async_dispatcher_send(self.hass, SIGNAL_CALL_STATE)
 
 
 @dataclass

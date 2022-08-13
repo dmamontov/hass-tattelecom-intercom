@@ -119,8 +119,12 @@ class IntercomClient:
         if response.status_code == 401:
             raise IntercomUnauthorizedError("Unauthorized")
 
-        if response.status_code > 400:
-            raise IntercomRequestError(_data.get("error_text", "Request error"))
+        if response.status_code > 400 or (
+            "status" in _data and int(_data["status"]) > 400
+        ):
+            raise IntercomRequestError(
+                _data.get("error_text", _data.get("message", "Request error"))
+            )
 
         return _data
 
@@ -216,6 +220,22 @@ class IntercomClient:
                 "device_code": DEVICE_CODE,
                 "phone": str(self._phone),
             },
+        )
+
+    # TODO: Not yet supported by the manufacturer.
+    async def streams(self) -> dict:  # pragma: no cover
+        """Get available streams
+
+        :return dict: Response data
+        """
+
+        return await self.request(
+            "subscriber/available-streams",
+            params={
+                "device_code": DEVICE_CODE,
+                "phone": str(self._phone),
+            },
+            api_version=ApiVersion.V2,
         )
 
     async def open(self, intercom_id: int) -> dict:

@@ -1,0 +1,10 @@
+{
+  "success": true,
+  "buildings": [
+    {
+      "building_id": 1000,
+      "building_address": "Testovaya street 1",
+      "streams": []
+    }
+  ]
+}

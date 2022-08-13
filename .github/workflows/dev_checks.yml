@@ -16,7 +16,7 @@ jobs:
       - uses: dmamontov/hass-py-lint@main
         with:
           hass-version: "dev"
-          path: "custom_components/seafile tests"
+          path: "custom_components/tattelecom_intercom tests"
           use-pytest: true
-          extra-pylint-options: "--disable=unused-argument"
+          extra-pylint-options: "--disable=unused-argument --disable=fixme"
           use-hass-branch: true

@@ -1,9 +1,13 @@
 """Camera component."""
 
 
+# pylint: disable=using-constant-test,missing-parentheses-for-call-in-test
+
 from __future__ import annotations
 
+import contextlib
 import logging
+from typing import Final
 
 from homeassistant.components.camera import ENTITY_ID_FORMAT
 from homeassistant.components.generic.camera import (
@@ -19,19 +23,42 @@ from homeassistant.components.generic.camera import (
 )
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_NAME
-from homeassistant.core import HomeAssistant, callback
-from homeassistant.helpers import config_validation as cv, template as template_helper
+from homeassistant.core import CALLBACK_TYPE, HomeAssistant, callback
+from homeassistant.helpers import config_validation as cv
+from homeassistant.helpers import template as template_helper
 from homeassistant.helpers.dispatcher import async_dispatcher_connect
-from homeassistant.helpers.entity import EntityDescription
+from homeassistant.helpers.entity import DeviceInfo, EntityDescription
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from .const import ATTR_STREAM_URL, CAMERA_NAME, MAINTAINER, SIGNAL_NEW_INTERCOM
+from .const import (
+    ATTR_STREAM_URL,
+    CAMERA_INCOMING,
+    CAMERA_INCOMING_NAME,
+    CAMERA_NAME,
+    MAINTAINER,
+    SIGNAL_CALL_STATE,
+    SIGNAL_NEW_INTERCOM,
+)
 from .entity import IntercomEntity
+from .enum import CallState
 from .updater import IntercomEntityDescription, IntercomUpdater, async_get_updater
 
 PARALLEL_UPDATES = 0
 
 _LOGGER = logging.getLogger(__name__)
+
+EVENTS: Final = {
+    CAMERA_INCOMING: SIGNAL_CALL_STATE,
+}
+
+CAMERAS: tuple[EntityDescription, ...] = (
+    EntityDescription(
+        key=CAMERA_INCOMING,
+        name=CAMERA_INCOMING_NAME,
+        icon="mdi:phone-incoming",
+        entity_registry_enabled_default=True,
+    ),
+)
 
 
 async def async_setup_entry(
@@ -59,11 +86,25 @@ async def async_setup_entry(
             [
                 IntercomCamera(
                     f"{config_entry.entry_id}-camera-{entity.id}",
-                    entity,
+                    EntityDescription(
+                        key=str(entity.id),
+                        name=CAMERA_NAME,
+                        icon="mdi:doorbell-video",
+                        entity_registry_enabled_default=True,
+                    ),
                     updater,
+                    entity.device_info,
                 )
             ]
         )
+
+    entities: list[IntercomCamera] = [
+        IntercomCamera(
+            f"{config_entry.entry_id}-{description.key}", description, updater
+        )
+        for description in CAMERAS
+    ]
+    async_add_entities(entities)
 
     for intercom in updater.intercoms.values():
         add_camera(intercom)
@@ -76,61 +117,103 @@ async def async_setup_entry(
 class IntercomCamera(IntercomEntity, GenericCamera):
     """Intercom camera entry."""
 
-    _attr_field: str
     _attr_stream_url: str
+    _unsub_update: CALLBACK_TYPE
 
-    def __init__(
+    def __init__(  # pylint: disable=too-many-arguments
         self,
         unique_id: str,
-        entity: IntercomEntityDescription,
+        description: EntityDescription,
         updater: IntercomUpdater,
+        device_info: DeviceInfo | None = None,
     ) -> None:
         """Initialize camera.
 
         :param unique_id: str: Unique ID
-        :param entity: IntercomEntityDescription object
+        :param description: EntityDescription object
         :param updater: IntercomUpdater: Intercom updater object
+        :param device_info: DeviceInfo | None: DeviceInfo object
         """
 
-        _description: EntityDescription = EntityDescription(
-            key=str(entity.id),
-            name=CAMERA_NAME,
-            icon="mdi:doorbell-video",
-            entity_registry_enabled_default=True,
-        )
+        source: str = ""
 
-        self._attr_field = f"{_description.key}_{ATTR_STREAM_URL}"
+        if description.key != CAMERA_INCOMING:
+            self._attr_is_streaming = True
+
+            source = updater.data.get(f"{description.key}_{ATTR_STREAM_URL}", "")
 
         GenericCamera.__init__(
             self,
             self.hass,
             {
-                CONF_STREAM_SOURCE: updater.data.get(self._attr_field),
+                CONF_STREAM_SOURCE: source,
                 CONF_AUTHENTICATION: HTTP_BASIC_AUTHENTICATION,
                 CONF_LIMIT_REFETCH_TO_URL_CHANGE: False,
-                CONF_NAME: CAMERA_NAME,
+                CONF_NAME: description.name,
                 CONF_CONTENT_TYPE: DEFAULT_CONTENT_TYPE,
                 CONF_FRAMERATE: 2,
-                CONF_VERIFY_SSL: True,
+                CONF_VERIFY_SSL: False,
             },
             unique_id,
-            CAMERA_NAME,
+            description.name,
         )
-        IntercomEntity.__init__(
-            self, unique_id, _description, updater, ENTITY_ID_FORMAT
-        )
+        IntercomEntity.__init__(self, unique_id, description, updater, ENTITY_ID_FORMAT)
 
-        self._attr_available = True
         self._attr_brand = MAINTAINER
 
-        self._attr_stream_url = updater.data.get(self._attr_field, "")
+        self._attr_stream_url = source
 
-        self._attr_device_info = entity.device_info
+        if device_info:
+            self._attr_device_info = device_info
+
+    @property
+    def available(self) -> bool:
+        """Is available
+
+        :return bool: Is available
+        """
+
+        return self.coordinator.last_update_success and len(self._attr_stream_url) > 0
+
+    async def async_added_to_hass(self) -> None:
+        """When entity is added to hass."""
+
+        await GenericCamera.async_added_to_hass(self)
+        await IntercomEntity.async_added_to_hass(self)
+
+        if self.entity_description.key in EVENTS:
+            self._unsub_update = async_dispatcher_connect(
+                self.hass,
+                EVENTS[self.entity_description.key],
+                self._handle_event_update,
+            )
+
+    async def will_remove_from_hass(self) -> None:  # pragma: no cover
+        """Remove event"""
+
+        if self._unsub_update:
+            self._unsub_update()
+
+    @callback
+    def _handle_event_update(self) -> None:
+        """Update state."""
+
+        self._handle_coordinator_update()
 
     def _handle_coordinator_update(self) -> None:
         """Update state."""
 
-        _stream_url: str = self._updater.data.get(self._attr_field, "")
+        key: str = f"{self.entity_description.key}_{ATTR_STREAM_URL}"
+
+        if (
+            self.entity_description.key == CAMERA_INCOMING
+            and self._updater.last_call
+            and self._updater.last_call.login in self._updater.code_map
+            and self._updater.last_call.state in (CallState.RINGING, CallState.ANSWERED)
+        ):
+            key = f"{self._updater.code_map[self._updater.last_call.login]}_{ATTR_STREAM_URL}"
+
+        _stream_url: str = self._updater.data.get(key, "")
 
         if self._attr_stream_url == _stream_url:  # type: ignore
             return
@@ -142,4 +225,26 @@ class IntercomCamera(IntercomEntity, GenericCamera):
 
         self._stream_source = _stream_source
 
+        self._attr_is_streaming = _stream_url != ""
+
+        # if not _stream_url and self.stream:  # pragma: no cover
+        #     self.hass.loop.call_soon(
+        #         lambda: self.hass.async_create_task(self.stream.stop()),
+        #     )
+
         self.async_write_ha_state()
+
+    async def async_camera_image(
+        self, width: int | None = None, height: int | None = None
+    ) -> bytes | None:  # pragma: no cover
+        """Return a still image response from the camera.
+
+        :param width: int | None
+        :param height: int | None
+        :return bytes | None
+        """
+
+        with contextlib.suppress(AttributeError):
+            return await GenericCamera.async_camera_image(self, width, height)
+
+        return None

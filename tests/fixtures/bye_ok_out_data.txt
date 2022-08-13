@@ -1,0 +1,1 @@
+SIP/2.0 200 Ok\r\nVia: SIP/2.0/UDP 217.0.0.1:9740;branch=z9hG4bK5b4f3518;rport\r\nFrom: "G0001" <sip:G0001@217.0.0.1:9740>;tag=as47d4d103\r\nTo: <sip:D100000@172.0.0.1:23582;transport=udp>;tag=83b72b539\r\nCall-ID: 0ade06186e9797e65573bb1a622d003d@217.0.0.1:9740\r\nCSeq: 102 BYE\r\nUser-Agent: Unknown (belle-sip/4.4.0)\r\nSupported: replaces, outbound, gruu\r\n\r\n

@@ -59,3 +59,58 @@ def generate_entity_id(
     _name: str = f"_{name}" if name is not None else ""
 
     return entity_id_format.format(slugify(f"{DOMAIN}_{phone}{_name}".lower()))
+
+
+def byte_to_bits(byte: bytes) -> str:
+    """Byte to bits
+
+    :param byte: bytes
+    :return str
+    """
+
+    if not byte:  # pragma: no cover
+        return ""
+
+    _byte = bin(ord(byte)).lstrip("-0b")
+
+    return ("0" * (8 - len(_byte))) + _byte
+
+
+def add_bytes(bytes_string: bytes) -> int:
+    """Add bytes
+
+    :param bytes_string: bytes
+    :return int
+    """
+
+    binary = ""
+    for byte in bytes_string:
+        _byte = bin(byte).lstrip("-0b")
+        binary += ("0" * (8 - len(_byte))) + _byte
+
+    return int(binary, 2)
+
+
+class Counter:  # pylint: disable=too-few-public-methods
+    """Counter class"""
+
+    _cnt: int
+
+    def __init__(self, start: int = 1) -> None:
+        """Init
+
+        :param start: int
+        """
+
+        self._cnt = start
+
+    def next(self) -> int:
+        """Get next count
+
+        :return int
+        """
+
+        cnt = self._cnt
+        self._cnt += 1
+
+        return cnt

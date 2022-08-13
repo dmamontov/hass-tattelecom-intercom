@@ -7,7 +7,7 @@ from __future__ import annotations
 import json
 import logging
 from datetime import timedelta
-from unittest.mock import AsyncMock, patch
+from unittest.mock import AsyncMock, Mock, patch
 
 import pytest
 from homeassistant.components.switch import DOMAIN as SWITCH_DOMAIN
@@ -28,7 +28,10 @@ from custom_components.tattelecom_intercom.const import (
     SWITCH_MUTE_NAME,
     UPDATER,
 )
-from custom_components.tattelecom_intercom.exceptions import IntercomRequestError
+from custom_components.tattelecom_intercom.exceptions import (
+    IntercomError,
+    IntercomRequestError,
+)
 from custom_components.tattelecom_intercom.helper import generate_entity_id
 from custom_components.tattelecom_intercom.updater import IntercomUpdater
 from tests.setup import (
@@ -56,7 +59,15 @@ async def test_mute(hass: HomeAssistant) -> None:
 
     with patch(
         "custom_components.tattelecom_intercom.updater.IntercomClient"
-    ) as mock_client:
+    ) as mock_client, patch(
+        "custom_components.tattelecom_intercom.updater.asyncio.sleep", return_value=None
+    ), patch(
+        "custom_components.tattelecom_intercom.sip.socket.socket"
+    ) as mock_socket:
+        mock_socket.return_value.setblocking = Mock(return_value=None)
+        mock_socket.return_value.recv = Mock(return_value=None)
+        mock_socket.return_value.sendto = Mock(side_effect=IntercomError)
+
         await async_mock_client(mock_client)
 
         def success_mute(intercom_id: int) -> dict:
@@ -135,29 +146,85 @@ async def test_mute(hass: HomeAssistant) -> None:
         assert state.attributes["icon"] == "mdi:bell"
         assert len(mock_client.mock_calls) == _prev_calls
 
-        with pytest.raises(IntercomRequestError):
-            _prev_calls += 1
-            assert await hass.services.async_call(
-                SWITCH_DOMAIN,
-                SERVICE_TURN_ON,
-                {ATTR_ENTITY_ID: [unique_id]},
-                blocking=True,
-                limit=None,
-            )
+        _prev_calls += 1
+        assert await hass.services.async_call(
+            SWITCH_DOMAIN,
+            SERVICE_TURN_ON,
+            {ATTR_ENTITY_ID: [unique_id]},
+            blocking=True,
+            limit=None,
+        )
 
         assert len(mock_client.mock_calls) == _prev_calls
 
-        with pytest.raises(IntercomRequestError):
-            _prev_calls += 1
-            assert await hass.services.async_call(
-                SWITCH_DOMAIN,
-                SERVICE_TURN_OFF,
-                {ATTR_ENTITY_ID: [unique_id]},
-                blocking=True,
-                limit=None,
-            )
+        _prev_calls += 1
+        assert await hass.services.async_call(
+            SWITCH_DOMAIN,
+            SERVICE_TURN_OFF,
+            {ATTR_ENTITY_ID: [unique_id]},
+            blocking=True,
+            limit=None,
+        )
 
         assert len(mock_client.mock_calls) == _prev_calls
+
+
+async def test_mute_change(hass: HomeAssistant) -> None:
+    """Test mute change.
+
+    :param hass: HomeAssistant
+    """
+
+    with patch(
+        "custom_components.tattelecom_intercom.updater.IntercomClient"
+    ) as mock_client, patch(
+        "custom_components.tattelecom_intercom.updater.asyncio.sleep", return_value=None
+    ), patch(
+        "custom_components.tattelecom_intercom.sip.socket.socket"
+    ) as mock_socket:
+        mock_socket.return_value.setblocking = Mock(return_value=None)
+        mock_socket.return_value.recv = Mock(return_value=None)
+        mock_socket.return_value.sendto = Mock(side_effect=IntercomError)
+
+        await async_mock_client(mock_client)
+
+        def mute_off() -> None:
+            return json.loads(load_fixture("intercoms_data.json"))
+
+        def mute_on() -> None:
+            return json.loads(load_fixture("intercoms_mute_on_data.json"))
+
+        mock_client.return_value.intercoms = AsyncMock(
+            side_effect=MultipleSideEffect(mute_off, mute_on)
+        )
+
+        _, config_entry = await async_setup(hass)
+
+        assert await hass.config_entries.async_setup(config_entry.entry_id)
+        await hass.async_block_till_done()
+
+        updater: IntercomUpdater = hass.data[DOMAIN][config_entry.entry_id][UPDATER]
+
+        assert updater.last_update_success
+
+        unique_id: str = _generate_id(str(MOCK_INTERCOM_ID), updater.phone)
+
+        state: State = hass.states.get(unique_id)
+        assert state.state == STATE_OFF
+        assert state.name == SWITCH_MUTE_NAME
+        assert state.attributes["icon"] == "mdi:bell"
+        assert state.attributes["attribution"] == ATTRIBUTION
+
+        async_fire_time_changed(
+            hass, utcnow() + timedelta(seconds=DEFAULT_SCAN_INTERVAL + 1)
+        )
+        await hass.async_block_till_done()
+
+        state = hass.states.get(unique_id)
+        assert state.state == STATE_ON
+        assert state.name == SWITCH_MUTE_NAME
+        assert state.attributes["icon"] == "mdi:bell-off"
+        assert state.attributes["attribution"] == ATTRIBUTION
 
 
 def _generate_id(code: str, phone: int) -> str:

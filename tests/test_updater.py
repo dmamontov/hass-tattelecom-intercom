@@ -5,12 +5,13 @@
 from __future__ import annotations
 
 import logging
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 import pytest
 from homeassistant.core import HomeAssistant
 
 from custom_components.tattelecom_intercom.const import DOMAIN, UPDATER
+from custom_components.tattelecom_intercom.exceptions import IntercomError
 from custom_components.tattelecom_intercom.updater import async_get_updater
 from tests.setup import async_mock_client, async_setup
 
@@ -48,7 +49,15 @@ async def test_updater_get_updater(hass: HomeAssistant) -> None:
 
     with patch(
         "custom_components.tattelecom_intercom.updater.IntercomClient"
-    ) as mock_client:
+    ) as mock_client, patch(
+        "custom_components.tattelecom_intercom.updater.asyncio.sleep", return_value=None
+    ), patch(
+        "custom_components.tattelecom_intercom.sip.socket.socket"
+    ) as mock_socket:
+        mock_socket.return_value.setblocking = Mock(return_value=None)
+        mock_socket.return_value.recv = Mock(return_value=None)
+        mock_socket.return_value.sendto = Mock(side_effect=IntercomError)
+
         await async_mock_client(mock_client)
 
         _, config_entry = await async_setup(hass)

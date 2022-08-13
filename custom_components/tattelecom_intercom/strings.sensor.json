@@ -1,0 +1,17 @@
+{
+  "state": {
+    "tattelecom_intercom__sip_state": {
+      "inactive": "inactive",
+      "registering": "registering",
+      "registered": "registered",
+      "deregistering": "deregistering",
+      "failed": "failed"
+    },
+    "tattelecom_intercom__call_state": {
+      "dialing": "dialing",
+      "ringing": "ringing",
+      "answered": "answered",
+      "ended": "ended"
+    }
+  }
+}

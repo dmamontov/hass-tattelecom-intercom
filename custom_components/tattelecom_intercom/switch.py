@@ -18,8 +18,9 @@ from homeassistant.helpers.dispatcher import async_dispatcher_connect
 from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from .const import ATTR_MUTE, ATTR_STATE, SIGNAL_NEW_INTERCOM, SWITCH_MUTE_NAME
+from .const import ATTR_MUTE, SIGNAL_NEW_INTERCOM, SWITCH_MUTE_NAME
 from .entity import IntercomEntity
+from .exceptions import IntercomError
 from .updater import IntercomEntityDescription, IntercomUpdater, async_get_updater
 
 PARALLEL_UPDATES = 0
@@ -111,13 +112,11 @@ class IntercomSwitch(IntercomEntity, SwitchEntity):
     def _handle_coordinator_update(self) -> None:
         """Update state."""
 
-        is_available: bool = self._updater.data.get(ATTR_STATE, False)
         is_on: bool = self._updater.data.get(self._attr_field, False)
 
-        if self._attr_available == is_available and self._attr_is_on == is_on:  # type: ignore
+        if self._attr_is_on == is_on:  # type: ignore
             return
 
-        self._attr_available = is_available
         self._attr_is_on = is_on
 
         self._change_icon(self._attr_is_on)
@@ -130,11 +129,14 @@ class IntercomSwitch(IntercomEntity, SwitchEntity):
         :param **kwargs: Any
         """
 
-        await self._updater.client.unmute(int(self.entity_description.key))
+        try:
+            await self._updater.client.mute(int(self.entity_description.key))
 
-        self._attr_is_on = True
-        self._change_icon(self._attr_is_on)
-        self._updater.update_data(self._attr_field, self._attr_is_on)
+            self._attr_is_on = True
+            self._change_icon(self._attr_is_on)
+            self._updater.update_data(self._attr_field, self._attr_is_on)
+        except IntercomError as _err:
+            _LOGGER.error("An error occurred while enabling mute: %r", _err)
 
         self.async_write_ha_state()
 
@@ -144,11 +146,14 @@ class IntercomSwitch(IntercomEntity, SwitchEntity):
         :param **kwargs: Any
         """
 
-        await self._updater.client.mute(int(self.entity_description.key))
+        try:
+            await self._updater.client.unmute(int(self.entity_description.key))
 
-        self._attr_is_on = False
-        self._change_icon(self._attr_is_on)
-        self._updater.update_data(self._attr_field, self._attr_is_on)
+            self._attr_is_on = False
+            self._change_icon(self._attr_is_on)
+            self._updater.update_data(self._attr_field, self._attr_is_on)
+        except IntercomError as _err:
+            _LOGGER.error("An error occurred while disabling mute: %r", _err)
 
         self.async_write_ha_state()
 

@@ -1,7 +1,7 @@
 {
-    "sip_address": "217.23.185.198",
-    "sip_login": "D108614",
-    "sip_password": "-xRSiG7VLO",
+    "sip_address": "127.0.0.1",
+    "sip_login": "D000000",
+    "sip_password": "-000000000",
     "sip_port": 9740,
     "success": true
 }
