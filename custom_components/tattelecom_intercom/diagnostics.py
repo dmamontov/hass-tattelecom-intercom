@@ -19,6 +19,8 @@ TO_REDACT: Final = {
     CONF_TOKEN,
     "sip_login",
     "sip_password",
+    "title",
+    "unique_id",
 }
 
 

@@ -341,6 +341,9 @@ class IntercomVoip:
         :param append: bool
         """
 
+        if isinstance(args, bytes):
+            args = args.decode("utf-8")
+
         _LOGGER.debug(message, args)
 
         if increment:
