@@ -232,10 +232,15 @@ class IntercomUpdater(DataUpdateCoordinator):
             await self.client.streams()
 
         if _error:  # pragma: no cover
-            if self._is_first_update and retry <= DEFAULT_RETRY:
+            if retry <= DEFAULT_RETRY:
                 await asyncio.sleep(retry)
 
-                _LOGGER.debug("Error start. retry (%r): %r", retry, _error)
+                _LOGGER.debug(
+                    "Error %s. retry (%r): %r",
+                    "start" if self._is_first_update else "update",
+                    retry,
+                    _error,
+                )
 
                 return await self._async_prepare(data, retry + 1)
 
