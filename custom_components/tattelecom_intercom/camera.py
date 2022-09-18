@@ -31,6 +31,7 @@ from homeassistant.helpers.entity import DeviceInfo, EntityDescription
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .const import (
+    ATTR_SIP_LOGIN,
     ATTR_STREAM_URL,
     CAMERA_INCOMING,
     CAMERA_INCOMING_NAME,
@@ -142,6 +143,11 @@ class IntercomCamera(IntercomEntity, GenericCamera):
 
             source = updater.data.get(f"{description.key}_{ATTR_STREAM_URL}", "")
 
+            self._attr_extra_state_attributes = {
+                ATTR_STREAM_URL: source,
+                ATTR_SIP_LOGIN: updater.data.get(f"{description.key}_{ATTR_SIP_LOGIN}"),
+            }
+
         GenericCamera.__init__(
             self,
             self.hass,
@@ -226,11 +232,6 @@ class IntercomCamera(IntercomEntity, GenericCamera):
         self._stream_source = _stream_source
 
         self._attr_is_streaming = _stream_url != ""
-
-        # if not _stream_url and self.stream:  # pragma: no cover
-        #     self.hass.loop.call_soon(
-        #         lambda: self.hass.async_create_task(self.stream.stop()),
-        #     )
 
         self.async_write_ha_state()
 

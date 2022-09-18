@@ -75,6 +75,7 @@ ATTR_SIP_PASSWORD: Final = "sip_password"
 ATTR_SIP_PORT: Final = "sip_port"
 
 ATTR_STREAM_URL: Final = "stream_url"
+ATTR_STREAM_URL_MPEG: Final = "stream_url_mpeg"
 ATTR_MUTE: Final = "mute"
 
 """Attributes sensor"""

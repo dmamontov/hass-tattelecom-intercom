@@ -30,6 +30,7 @@ from .const import (
     ATTR_SIP_PASSWORD,
     ATTR_SIP_PORT,
     ATTR_STREAM_URL,
+    ATTR_STREAM_URL_MPEG,
     ATTR_UPDATE_STATE,
     DEFAULT_RETRY,
     DEFAULT_SCAN_INTERVAL,
@@ -252,6 +253,11 @@ class IntercomUpdater(DataUpdateCoordinator):
         if "addresses" in response:
             for address, intercoms in response["addresses"].items():
                 for intercom in intercoms:
+                    if (
+                        ATTR_STREAM_URL in intercom and ATTR_STREAM_URL_MPEG in intercom
+                    ):  # pragma: no cover
+                        intercom[ATTR_STREAM_URL] = intercom[ATTR_STREAM_URL_MPEG]
+
                     for attr in [ATTR_STREAM_URL, ATTR_MUTE, ATTR_SIP_LOGIN]:
                         data[f"{intercom['id']}_{attr}"] = intercom[attr]
 

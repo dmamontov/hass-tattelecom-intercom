@@ -202,7 +202,11 @@ class IntercomMediaPlayer(IntercomEntity, MediaPlayerEntity):
         async with self._play_lock:
             data = await self.hass.async_add_executor_job(
                 _convert,
-                f"{self._manager.binary} -i {media_id} -ac 1 -ar 8000 -acodec pcm_u8 -f wav -",
+                str(
+                    f"{self._manager.binary} -loglevel quiet "
+                    f"-i {media_id} "
+                    "-ac 1 -ar 8000 -acodec pcm_u8 -f wav -"
+                ),
             )
 
             if not data:  # pragma: no cover
