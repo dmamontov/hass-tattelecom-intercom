@@ -38,6 +38,7 @@ def auto_enable_custom_integrations(enable_custom_integrations):
     yield
 
 
+@pytest.mark.asyncio
 async def test_config_flow(hass: HomeAssistant) -> None:
     """Test config flow.
 
@@ -92,6 +93,7 @@ async def test_config_flow(hass: HomeAssistant) -> None:
         assert len(mock_async_setup_entry.mock_calls) == 1
 
 
+@pytest.mark.asyncio
 async def test_config_flow_with_register(hass: HomeAssistant) -> None:
     """Test config flow with register.
 
@@ -162,6 +164,7 @@ async def test_config_flow_with_register(hass: HomeAssistant) -> None:
         assert len(mock_async_setup_entry.mock_calls) == 1
 
 
+@pytest.mark.asyncio
 async def test_config_flow_step_phone_connection_error(hass: HomeAssistant) -> None:
     """Test config flow step phone connection error.
 
@@ -203,6 +206,7 @@ async def test_config_flow_step_phone_connection_error(hass: HomeAssistant) -> N
         assert len(mock_async_setup_entry.mock_calls) == 0
 
 
+@pytest.mark.asyncio
 async def test_config_flow_step_phone_other_error(hass: HomeAssistant) -> None:
     """Test config flow step phone other error.
 
@@ -246,6 +250,7 @@ async def test_config_flow_step_phone_other_error(hass: HomeAssistant) -> None:
         assert len(mock_async_setup_entry.mock_calls) == 0
 
 
+@pytest.mark.asyncio
 async def test_config_flow_step_register_unauthorized_error(
     hass: HomeAssistant,
 ) -> None:
@@ -303,6 +308,7 @@ async def test_config_flow_step_register_unauthorized_error(
         assert len(mock_async_setup_entry.mock_calls) == 0
 
 
+@pytest.mark.asyncio
 async def test_config_flow_step_register_connection_error(hass: HomeAssistant) -> None:
     """Test config flow step register connection error.
 
@@ -358,6 +364,7 @@ async def test_config_flow_step_register_connection_error(hass: HomeAssistant) -
         assert len(mock_async_setup_entry.mock_calls) == 0
 
 
+@pytest.mark.asyncio
 async def test_config_flow_step_register_other_error(hass: HomeAssistant) -> None:
     """Test config flow step register other error.
 
@@ -413,6 +420,7 @@ async def test_config_flow_step_register_other_error(hass: HomeAssistant) -> Non
         assert len(mock_async_setup_entry.mock_calls) == 0
 
 
+@pytest.mark.asyncio
 async def test_config_flow_step_confirm_unauthorized_error(hass: HomeAssistant) -> None:
     """Test config flow step confirm unauthorized error.
 
@@ -467,6 +475,7 @@ async def test_config_flow_step_confirm_unauthorized_error(hass: HomeAssistant) 
         assert len(mock_async_setup_entry.mock_calls) == 0
 
 
+@pytest.mark.asyncio
 async def test_config_flow_step_confirm_connection_error(hass: HomeAssistant) -> None:
     """Test config flow step confirm connection error.
 
@@ -521,6 +530,7 @@ async def test_config_flow_step_confirm_connection_error(hass: HomeAssistant) ->
         assert len(mock_async_setup_entry.mock_calls) == 0
 
 
+@pytest.mark.asyncio
 async def test_config_flow_step_confirm_other_error(hass: HomeAssistant) -> None:
     """Test config flow step confirm other error.
 
@@ -575,6 +585,7 @@ async def test_config_flow_step_confirm_other_error(hass: HomeAssistant) -> None
         assert len(mock_async_setup_entry.mock_calls) == 0
 
 
+@pytest.mark.asyncio
 async def test_options_flow(hass: HomeAssistant) -> None:
     """Test options flow.
 
@@ -639,6 +650,7 @@ async def test_options_flow(hass: HomeAssistant) -> None:
         assert len(mock_async_setup_entry.mock_calls) == 1
 
 
+@pytest.mark.asyncio
 async def test_options_flow_change_phone(hass: HomeAssistant) -> None:
     """Test options flow change phone.
 
@@ -710,6 +722,7 @@ async def test_options_flow_change_phone(hass: HomeAssistant) -> None:
         assert len(mock_async_setup_entry.mock_calls) == 1
 
 
+@pytest.mark.asyncio
 async def test_options_flow_change_phone_with_register(hass: HomeAssistant) -> None:
     """Test options flow change phone with register.
 
@@ -793,6 +806,7 @@ async def test_options_flow_change_phone_with_register(hass: HomeAssistant) -> N
         assert len(mock_async_setup_entry.mock_calls) == 1
 
 
+@pytest.mark.asyncio
 async def test_options_flow_change_phone_connection_error(hass: HomeAssistant) -> None:
     """Test options flow change phone connection error.
 
@@ -847,6 +861,7 @@ async def test_options_flow_change_phone_connection_error(hass: HomeAssistant) -
         assert result_save["errors"]["base"] == "connection.error"
 
 
+@pytest.mark.asyncio
 async def test_options_flow_change_phone_other_error(hass: HomeAssistant) -> None:
     """Test options flow change phone other error.
 

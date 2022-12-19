@@ -51,6 +51,7 @@ def auto_enable_custom_integrations(enable_custom_integrations):
     yield
 
 
+@pytest.mark.asyncio
 async def test_mute(hass: HomeAssistant) -> None:
     """Test mute.
 
@@ -169,6 +170,7 @@ async def test_mute(hass: HomeAssistant) -> None:
         assert len(mock_client.mock_calls) == _prev_calls
 
 
+@pytest.mark.asyncio
 async def test_mute_change(hass: HomeAssistant) -> None:
     """Test mute change.
 

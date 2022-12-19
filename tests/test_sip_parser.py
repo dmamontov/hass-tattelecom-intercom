@@ -29,6 +29,7 @@ def auto_enable_custom_integrations(enable_custom_integrations):
     yield
 
 
+@pytest.mark.asyncio
 async def test_parser_register(hass: HomeAssistant) -> None:
     """Parser register"""
 
@@ -93,6 +94,7 @@ async def test_parser_register(hass: HomeAssistant) -> None:
     }
 
 
+@pytest.mark.asyncio
 async def test_parser_register_unauth(hass: HomeAssistant) -> None:
     """Parser register test"""
 
@@ -159,6 +161,7 @@ async def test_parser_register_unauth(hass: HomeAssistant) -> None:
     }
 
 
+@pytest.mark.asyncio
 async def test_parser_invite(hass: HomeAssistant) -> None:
     """Parser invite"""
 
@@ -276,6 +279,7 @@ async def test_parser_invite(hass: HomeAssistant) -> None:
     }
 
 
+@pytest.mark.asyncio
 async def test_parser_ack(hass: HomeAssistant) -> None:
     """Parser ack"""
 
@@ -324,6 +328,7 @@ async def test_parser_ack(hass: HomeAssistant) -> None:
     }
 
 
+@pytest.mark.asyncio
 async def test_parser_bye(hass: HomeAssistant) -> None:
     """Parser bye"""
 
@@ -373,6 +378,7 @@ async def test_parser_bye(hass: HomeAssistant) -> None:
     }
 
 
+@pytest.mark.asyncio
 async def test_parser_cancel(hass: HomeAssistant) -> None:
     """Parser cancel"""
 
