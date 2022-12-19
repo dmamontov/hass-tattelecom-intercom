@@ -165,6 +165,7 @@ PACKETS: Final = [
 ]
 
 
+@pytest.mark.asyncio
 async def test_messages(hass: HomeAssistant) -> None:
     """Test messages"""
 
@@ -180,6 +181,7 @@ async def test_messages(hass: HomeAssistant) -> None:
             break
 
 
+@pytest.mark.asyncio
 async def test_start_stop(hass: HomeAssistant) -> None:
     """Test start stop"""
 
@@ -199,6 +201,7 @@ async def test_start_stop(hass: HomeAssistant) -> None:
         assert not rtp._started
 
 
+@pytest.mark.asyncio
 async def test_write(hass: HomeAssistant) -> None:
     """Test write"""
 
@@ -249,6 +252,7 @@ async def test_write(hass: HomeAssistant) -> None:
         await hass.async_block_till_done()
 
 
+@pytest.mark.asyncio
 async def test_read(hass: HomeAssistant) -> None:
     """Test read"""
 
@@ -294,6 +298,7 @@ async def test_read(hass: HomeAssistant) -> None:
         await hass.async_block_till_done()
 
 
+@pytest.mark.asyncio
 async def _dtmf_callback() -> None:
     """Callback"""
 

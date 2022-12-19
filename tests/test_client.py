@@ -35,6 +35,7 @@ from tests.setup import (
 _LOGGER = logging.getLogger(__name__)
 
 
+@pytest.mark.asyncio
 async def test_signin(hass: HomeAssistant, httpx_mock: HTTPXMock) -> None:
     """Signin test"""
 
@@ -60,6 +61,7 @@ async def test_signin(hass: HomeAssistant, httpx_mock: HTTPXMock) -> None:
     }
 
 
+@pytest.mark.asyncio
 async def test_signin_connection_error(
     hass: HomeAssistant, httpx_mock: HTTPXMock
 ) -> None:
@@ -73,6 +75,7 @@ async def test_signin_connection_error(
         await client.signin()
 
 
+@pytest.mark.asyncio
 async def test_signin_not_found_error(
     hass: HomeAssistant, httpx_mock: HTTPXMock
 ) -> None:
@@ -88,6 +91,7 @@ async def test_signin_not_found_error(
         await client.signin()
 
 
+@pytest.mark.asyncio
 async def test_signin_unauthorized_error(
     hass: HomeAssistant, httpx_mock: HTTPXMock
 ) -> None:
@@ -103,6 +107,7 @@ async def test_signin_unauthorized_error(
         await client.signin()
 
 
+@pytest.mark.asyncio
 async def test_signin_request(hass: HomeAssistant, httpx_mock: HTTPXMock) -> None:
     """Signin request error test"""
 
@@ -116,6 +121,7 @@ async def test_signin_request(hass: HomeAssistant, httpx_mock: HTTPXMock) -> Non
         await client.signin()
 
 
+@pytest.mark.asyncio
 async def test_register(hass: HomeAssistant, httpx_mock: HTTPXMock) -> None:
     """Register test"""
 
@@ -133,6 +139,7 @@ async def test_register(hass: HomeAssistant, httpx_mock: HTTPXMock) -> None:
     assert request.method == Method.POST
 
 
+@pytest.mark.asyncio
 async def test_register_connection_error(
     hass: HomeAssistant, httpx_mock: HTTPXMock
 ) -> None:
@@ -146,6 +153,7 @@ async def test_register_connection_error(
         await client.register(MOCK_LOGIN)
 
 
+@pytest.mark.asyncio
 async def test_register_not_found_error(
     hass: HomeAssistant, httpx_mock: HTTPXMock
 ) -> None:
@@ -161,6 +169,7 @@ async def test_register_not_found_error(
         await client.register(MOCK_LOGIN)
 
 
+@pytest.mark.asyncio
 async def test_register_unauthorized_error(
     hass: HomeAssistant, httpx_mock: HTTPXMock
 ) -> None:
@@ -176,6 +185,7 @@ async def test_register_unauthorized_error(
         await client.register(MOCK_LOGIN)
 
 
+@pytest.mark.asyncio
 async def test_sms_confirm(hass: HomeAssistant, httpx_mock: HTTPXMock) -> None:
     """Sms confirm test"""
 
@@ -195,6 +205,7 @@ async def test_sms_confirm(hass: HomeAssistant, httpx_mock: HTTPXMock) -> None:
     assert request.method == Method.POST
 
 
+@pytest.mark.asyncio
 async def test_sms_confirm_connection_error(
     hass: HomeAssistant, httpx_mock: HTTPXMock
 ) -> None:
@@ -208,6 +219,7 @@ async def test_sms_confirm_connection_error(
         await client.sms_confirm(MOCK_CODE)
 
 
+@pytest.mark.asyncio
 async def test_sms_confirm_not_found_error(
     hass: HomeAssistant, httpx_mock: HTTPXMock
 ) -> None:
@@ -223,6 +235,7 @@ async def test_sms_confirm_not_found_error(
         await client.sms_confirm(MOCK_CODE)
 
 
+@pytest.mark.asyncio
 async def test_sms_confirm_unauthorized_error(
     hass: HomeAssistant, httpx_mock: HTTPXMock
 ) -> None:
@@ -238,6 +251,7 @@ async def test_sms_confirm_unauthorized_error(
         await client.sms_confirm(MOCK_LOGIN)
 
 
+@pytest.mark.asyncio
 async def test_update_push_token(hass: HomeAssistant, httpx_mock: HTTPXMock) -> None:
     """Update push token test"""
 
@@ -270,6 +284,7 @@ async def test_update_push_token(hass: HomeAssistant, httpx_mock: HTTPXMock) -> 
     }
 
 
+@pytest.mark.asyncio
 async def test_update_push_token_connection_error(
     hass: HomeAssistant, httpx_mock: HTTPXMock
 ) -> None:
@@ -285,6 +300,7 @@ async def test_update_push_token_connection_error(
         await client.update_push_token("test")
 
 
+@pytest.mark.asyncio
 async def test_update_push_token_not_found_error(
     hass: HomeAssistant, httpx_mock: HTTPXMock
 ) -> None:
@@ -302,6 +318,7 @@ async def test_update_push_token_not_found_error(
         await client.update_push_token("test")
 
 
+@pytest.mark.asyncio
 async def test_update_push_token_unauthorized_error(
     hass: HomeAssistant, httpx_mock: HTTPXMock
 ) -> None:
@@ -319,6 +336,7 @@ async def test_update_push_token_unauthorized_error(
         await client.update_push_token("test")
 
 
+@pytest.mark.asyncio
 async def test_sip_settings(hass: HomeAssistant, httpx_mock: HTTPXMock) -> None:
     """Sip settings test"""
 
@@ -342,6 +360,7 @@ async def test_sip_settings(hass: HomeAssistant, httpx_mock: HTTPXMock) -> None:
     assert request.method == Method.GET
 
 
+@pytest.mark.asyncio
 async def test_sip_settings_connection_error(
     hass: HomeAssistant, httpx_mock: HTTPXMock
 ) -> None:
@@ -357,6 +376,7 @@ async def test_sip_settings_connection_error(
         await client.sip_settings()
 
 
+@pytest.mark.asyncio
 async def test_sip_settings_not_found_error(
     hass: HomeAssistant, httpx_mock: HTTPXMock
 ) -> None:
@@ -374,6 +394,7 @@ async def test_sip_settings_not_found_error(
         await client.sip_settings()
 
 
+@pytest.mark.asyncio
 async def test_sip_settings_unauthorized_error(
     hass: HomeAssistant, httpx_mock: HTTPXMock
 ) -> None:
@@ -391,6 +412,7 @@ async def test_sip_settings_unauthorized_error(
         await client.sip_settings()
 
 
+@pytest.mark.asyncio
 async def test_intercoms(hass: HomeAssistant, httpx_mock: HTTPXMock) -> None:
     """Intercoms test"""
 
@@ -411,6 +433,7 @@ async def test_intercoms(hass: HomeAssistant, httpx_mock: HTTPXMock) -> None:
     assert request.method == Method.GET
 
 
+@pytest.mark.asyncio
 async def test_intercoms_connection_error(
     hass: HomeAssistant, httpx_mock: HTTPXMock
 ) -> None:
@@ -426,6 +449,7 @@ async def test_intercoms_connection_error(
         await client.intercoms()
 
 
+@pytest.mark.asyncio
 async def test_intercoms_not_found_error(
     hass: HomeAssistant, httpx_mock: HTTPXMock
 ) -> None:
@@ -443,6 +467,7 @@ async def test_intercoms_not_found_error(
         await client.intercoms()
 
 
+@pytest.mark.asyncio
 async def test_intercoms_unauthorized_error(
     hass: HomeAssistant, httpx_mock: HTTPXMock
 ) -> None:
@@ -460,6 +485,7 @@ async def test_intercoms_unauthorized_error(
         await client.intercoms()
 
 
+@pytest.mark.asyncio
 async def test_open(hass: HomeAssistant, httpx_mock: HTTPXMock) -> None:
     """Open test"""
 
@@ -479,6 +505,7 @@ async def test_open(hass: HomeAssistant, httpx_mock: HTTPXMock) -> None:
     assert request.method == Method.POST
 
 
+@pytest.mark.asyncio
 async def test_open_connection_error(
     hass: HomeAssistant, httpx_mock: HTTPXMock
 ) -> None:
@@ -494,6 +521,7 @@ async def test_open_connection_error(
         await client.open(MOCK_INTERCOM_ID)
 
 
+@pytest.mark.asyncio
 async def test_open_not_found_error(hass: HomeAssistant, httpx_mock: HTTPXMock) -> None:
     """Open not found error test"""
 
@@ -509,6 +537,7 @@ async def test_open_not_found_error(hass: HomeAssistant, httpx_mock: HTTPXMock) 
         await client.open(MOCK_INTERCOM_ID)
 
 
+@pytest.mark.asyncio
 async def test_open_unauthorized_error(
     hass: HomeAssistant, httpx_mock: HTTPXMock
 ) -> None:
@@ -526,6 +555,7 @@ async def test_open_unauthorized_error(
         await client.open(MOCK_INTERCOM_ID)
 
 
+@pytest.mark.asyncio
 async def test_mute(hass: HomeAssistant, httpx_mock: HTTPXMock) -> None:
     """Mute test"""
 
@@ -545,6 +575,7 @@ async def test_mute(hass: HomeAssistant, httpx_mock: HTTPXMock) -> None:
     assert request.method == Method.POST
 
 
+@pytest.mark.asyncio
 async def test_mute_connection_error(
     hass: HomeAssistant, httpx_mock: HTTPXMock
 ) -> None:
@@ -560,6 +591,7 @@ async def test_mute_connection_error(
         await client.mute(MOCK_INTERCOM_ID)
 
 
+@pytest.mark.asyncio
 async def test_mute_not_found_error(hass: HomeAssistant, httpx_mock: HTTPXMock) -> None:
     """Mute not found error test"""
 
@@ -575,6 +607,7 @@ async def test_mute_not_found_error(hass: HomeAssistant, httpx_mock: HTTPXMock) 
         await client.mute(MOCK_INTERCOM_ID)
 
 
+@pytest.mark.asyncio
 async def test_mute_unauthorized_error(
     hass: HomeAssistant, httpx_mock: HTTPXMock
 ) -> None:
@@ -592,6 +625,7 @@ async def test_mute_unauthorized_error(
         await client.mute(MOCK_INTERCOM_ID)
 
 
+@pytest.mark.asyncio
 async def test_unmute(hass: HomeAssistant, httpx_mock: HTTPXMock) -> None:
     """Unmute test"""
 
@@ -611,6 +645,7 @@ async def test_unmute(hass: HomeAssistant, httpx_mock: HTTPXMock) -> None:
     assert request.method == Method.POST
 
 
+@pytest.mark.asyncio
 async def test_unmute_connection_error(
     hass: HomeAssistant, httpx_mock: HTTPXMock
 ) -> None:
@@ -626,6 +661,7 @@ async def test_unmute_connection_error(
         await client.unmute(MOCK_INTERCOM_ID)
 
 
+@pytest.mark.asyncio
 async def test_unmute_not_found_error(
     hass: HomeAssistant, httpx_mock: HTTPXMock
 ) -> None:
@@ -643,6 +679,7 @@ async def test_unmute_not_found_error(
         await client.unmute(MOCK_INTERCOM_ID)
 
 
+@pytest.mark.asyncio
 async def test_unmute_unauthorized_error(
     hass: HomeAssistant, httpx_mock: HTTPXMock
 ) -> None:
@@ -660,6 +697,7 @@ async def test_unmute_unauthorized_error(
         await client.unmute(MOCK_INTERCOM_ID)
 
 
+@pytest.mark.asyncio
 async def test_schedule(hass: HomeAssistant, httpx_mock: HTTPXMock) -> None:
     """Schedule test"""
 
@@ -679,6 +717,7 @@ async def test_schedule(hass: HomeAssistant, httpx_mock: HTTPXMock) -> None:
     assert request.method == Method.POST
 
 
+@pytest.mark.asyncio
 async def test_schedule_connection_error(
     hass: HomeAssistant, httpx_mock: HTTPXMock
 ) -> None:
@@ -694,6 +733,7 @@ async def test_schedule_connection_error(
         await client.schedule(MOCK_INTERCOM_ID)
 
 
+@pytest.mark.asyncio
 async def test_schedule_not_found_error(
     hass: HomeAssistant, httpx_mock: HTTPXMock
 ) -> None:
@@ -711,6 +751,7 @@ async def test_schedule_not_found_error(
         await client.schedule(MOCK_INTERCOM_ID)
 
 
+@pytest.mark.asyncio
 async def test_schedule_unauthorized_error(
     hass: HomeAssistant, httpx_mock: HTTPXMock
 ) -> None:

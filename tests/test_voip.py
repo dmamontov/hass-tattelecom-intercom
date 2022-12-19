@@ -46,6 +46,7 @@ def auto_enable_custom_integrations(enable_custom_integrations):
     yield
 
 
+@pytest.mark.asyncio
 async def test_start(hass: HomeAssistant) -> None:
     """Start start"""
 
@@ -105,6 +106,7 @@ async def test_start(hass: HomeAssistant) -> None:
         assert len(mock_select.mock_calls) == 2
 
 
+@pytest.mark.asyncio
 async def test_start_already_start(hass: HomeAssistant) -> None:
     """Start already start"""
 
@@ -145,6 +147,7 @@ async def test_start_already_start(hass: HomeAssistant) -> None:
         assert len(mock_select.mock_calls) == 2
 
 
+@pytest.mark.asyncio
 async def test_start_timeout_error(hass: HomeAssistant) -> None:
     """Start timeout error"""
 
@@ -177,6 +180,7 @@ async def test_start_timeout_error(hass: HomeAssistant) -> None:
         assert len(mock_select.mock_calls) == 1
 
 
+@pytest.mark.asyncio
 async def test_start_timeout_error_two(hass: HomeAssistant) -> None:
     """Start timeout error"""
 
@@ -216,6 +220,7 @@ async def test_start_timeout_error_two(hass: HomeAssistant) -> None:
         assert len(mock_select.mock_calls) == 2
 
 
+@pytest.mark.asyncio
 async def test_start_trying(hass: HomeAssistant) -> None:
     """Start start trying"""
 
@@ -280,6 +285,7 @@ async def test_start_trying(hass: HomeAssistant) -> None:
         assert len(mock_select.mock_calls) == 2
 
 
+@pytest.mark.asyncio
 async def test_start_bad_request(hass: HomeAssistant) -> None:
     """Start start bad request"""
 
@@ -325,6 +331,7 @@ async def test_start_bad_request(hass: HomeAssistant) -> None:
         assert len(mock_select.mock_calls) == 1
 
 
+@pytest.mark.asyncio
 async def test_start_bad_request_two(hass: HomeAssistant) -> None:
     """Start start bad request"""
 
@@ -384,6 +391,7 @@ async def test_start_bad_request_two(hass: HomeAssistant) -> None:
         assert len(mock_select.mock_calls) == 2
 
 
+@pytest.mark.asyncio
 async def test_start_unauthorized(hass: HomeAssistant) -> None:
     """Start start unauthorized"""
 
@@ -439,6 +447,7 @@ async def test_start_unauthorized(hass: HomeAssistant) -> None:
         assert len(mock_select.mock_calls) == 2
 
 
+@pytest.mark.asyncio
 async def test_start_server_error(hass: HomeAssistant) -> None:
     """Start start server error"""
 
@@ -506,6 +515,7 @@ async def test_start_server_error(hass: HomeAssistant) -> None:
         assert len(mock_select.mock_calls) == 4
 
 
+@pytest.mark.asyncio
 async def test_start_bad_package(hass: HomeAssistant) -> None:
     """Start start bad package"""
 
@@ -565,6 +575,7 @@ async def test_start_bad_package(hass: HomeAssistant) -> None:
         assert len(mock_select.mock_calls) == 2
 
 
+@pytest.mark.asyncio
 async def test_stop(hass: HomeAssistant) -> None:
     """Start stop"""
 
@@ -645,6 +656,7 @@ async def test_stop(hass: HomeAssistant) -> None:
         assert len(mock_select.mock_calls) == 4
 
 
+@pytest.mark.asyncio
 async def test_stop_error(hass: HomeAssistant) -> None:
     """Start stop error"""
 
@@ -725,6 +737,7 @@ async def test_stop_error(hass: HomeAssistant) -> None:
         assert len(mock_select.mock_calls) == 4
 
 
+@pytest.mark.asyncio
 async def test_stop_not_started(hass: HomeAssistant) -> None:
     """Start stop not started"""
 
@@ -754,6 +767,7 @@ async def test_stop_not_started(hass: HomeAssistant) -> None:
         assert len(mock_select.mock_calls) == 0
 
 
+@pytest.mark.asyncio
 async def test_stop_timeout_error(hass: HomeAssistant) -> None:
     """Start stop timeout error"""
 
@@ -829,6 +843,7 @@ async def test_stop_timeout_error(hass: HomeAssistant) -> None:
         assert len(mock_select.mock_calls) == 3
 
 
+@pytest.mark.asyncio
 async def test_stop_timeout_error_two(hass: HomeAssistant) -> None:
     """Start stop timeout error"""
 
@@ -915,6 +930,7 @@ async def test_stop_timeout_error_two(hass: HomeAssistant) -> None:
         assert len(mock_select.mock_calls) == 4
 
 
+@pytest.mark.asyncio
 async def test_stop_server_error(hass: HomeAssistant) -> None:
     """Start stop server error"""
 
@@ -1000,6 +1016,7 @@ async def test_stop_server_error(hass: HomeAssistant) -> None:
         assert len(mock_select.mock_calls) == 6
 
 
+@pytest.mark.asyncio
 async def test_safe_start(hass: HomeAssistant) -> None:
     """Start safe start"""
 
@@ -1081,6 +1098,7 @@ async def test_safe_start(hass: HomeAssistant) -> None:
         assert len(mock_select.mock_calls) == 4
 
 
+@pytest.mark.asyncio
 async def test_safe_start_retry(hass: HomeAssistant) -> None:
     """Start safe start retry"""
 
@@ -1165,6 +1183,7 @@ async def test_safe_start_retry(hass: HomeAssistant) -> None:
         assert len(mock_select.mock_calls) == 6
 
 
+@pytest.mark.asyncio
 async def test_safe_start_error(hass: HomeAssistant) -> None:
     """Start safe start error"""
 
@@ -1225,6 +1244,7 @@ async def test_safe_start_error(hass: HomeAssistant) -> None:
         assert len(mock_select.mock_calls) == 2
 
 
+@pytest.mark.asyncio
 async def test_safe_register(hass: HomeAssistant) -> None:
     """Safe register test"""
 
@@ -1292,6 +1312,7 @@ async def test_safe_register(hass: HomeAssistant) -> None:
         assert len(mock_select.mock_calls) == 5
 
 
+@pytest.mark.asyncio
 async def test_safe_register_error(hass: HomeAssistant) -> None:
     """Safe register test error"""
 
@@ -1395,6 +1416,7 @@ async def test_safe_register_error(hass: HomeAssistant) -> None:
         assert len(mock_select.mock_calls) == 6
 
 
+@pytest.mark.asyncio
 async def test_invite(hass: HomeAssistant) -> None:
     """Invite test"""
 
@@ -1500,6 +1522,7 @@ async def test_invite(hass: HomeAssistant) -> None:
         assert len(mock_select.mock_calls) == 2
 
 
+@pytest.mark.asyncio
 async def test_invite_stop(hass: HomeAssistant) -> None:
     """Invite stop test"""
 
@@ -1627,6 +1650,7 @@ async def test_invite_stop(hass: HomeAssistant) -> None:
         assert len(mock_select.mock_calls) == 2
 
 
+@pytest.mark.asyncio
 async def test_invite_cancel(hass: HomeAssistant) -> None:
     """Invite cancel test"""
 
@@ -1765,6 +1789,7 @@ async def test_invite_cancel(hass: HomeAssistant) -> None:
         assert len(mock_select.mock_calls) == 2
 
 
+@pytest.mark.asyncio
 async def test_invite_bye(hass: HomeAssistant) -> None:
     """Invite bye test"""
 
@@ -1892,6 +1917,7 @@ async def test_invite_bye(hass: HomeAssistant) -> None:
         assert len(mock_select.mock_calls) == 2
 
 
+@pytest.mark.asyncio
 async def test_invite_decline(hass: HomeAssistant) -> None:
     """Invite decline test"""
 
@@ -2011,6 +2037,7 @@ async def test_invite_decline(hass: HomeAssistant) -> None:
         assert len(mock_select.mock_calls) == 2
 
 
+@pytest.mark.asyncio
 async def test_recv_error(hass: HomeAssistant) -> None:
     """Recv test"""
 
@@ -2079,6 +2106,7 @@ async def test_recv_error(hass: HomeAssistant) -> None:
         assert len(mock_select.mock_calls) == 2
 
 
+@pytest.mark.asyncio
 async def test_renegotiate(hass: HomeAssistant) -> None:
     """Renegotiate test"""
 
@@ -2230,6 +2258,7 @@ async def test_renegotiate(hass: HomeAssistant) -> None:
         assert len(mock_select.mock_calls) == 2
 
 
+@pytest.mark.asyncio
 async def test_answer(hass: HomeAssistant) -> None:
     """Answer test"""
 
@@ -2384,6 +2413,7 @@ async def test_answer(hass: HomeAssistant) -> None:
         assert len(mock_select.mock_calls) == 2
 
 
+@pytest.mark.asyncio
 async def test_hangup(hass: HomeAssistant, socket_enabled) -> None:
     """Hangup test"""
 

@@ -25,6 +25,7 @@ def auto_enable_custom_integrations(enable_custom_integrations):
     yield
 
 
+@pytest.mark.asyncio
 async def test_updater_schedule(hass: HomeAssistant) -> None:
     """Test updater schedule.
 
@@ -41,6 +42,7 @@ async def test_updater_schedule(hass: HomeAssistant) -> None:
     assert updater._unsub_refresh is not None
 
 
+@pytest.mark.asyncio
 async def test_updater_get_updater(hass: HomeAssistant) -> None:
     """Test updater get updater.
 

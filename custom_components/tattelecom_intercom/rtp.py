@@ -12,7 +12,7 @@ from asyncio import Lock
 from collections.abc import Callable
 from functools import cached_property
 from io import BytesIO
-from typing import Any
+from typing import Any, Optional
 
 from homeassistant.core import HomeAssistant
 from homeassistant.util.read_only_dict import ReadOnlyDict
@@ -52,8 +52,8 @@ class RtpClient:
         in_port: int,
         out_ip: str,
         out_port: int,
-        dtmf: Callable = None,
-        debug_callback: Callable = None,
+        dtmf: Optional[Callable] = None,
+        debug_callback: Optional[Callable] = None,
     ) -> None:
         """Initialize Rtp Client
 
@@ -190,7 +190,7 @@ class RtpClient:
         while self._started and self._in:
             try:
                 if raw := self._in.recv(8192):
-                    if self._debug_callback:  # pragma: no cover
+                    if self._debug_callback is not None:  # pragma: no cover
                         self._debug_callback(
                             "rtp_recv", "RTP Recv: %r", raw.hex(), increment=True
                         )
@@ -208,7 +208,7 @@ class RtpClient:
             )
 
             with contextlib.suppress(OSError):
-                if self._debug_callback:
+                if self._debug_callback is not None:
                     self._debug_callback(
                         "rtp_trans", "RTP Trans: %r", packet.hex(), increment=True
                     )
@@ -246,7 +246,9 @@ class RtpClient:
 
         # TODO: Not yet supported by the manufacturer.
         if (
-            msg.payload_type == RtpPayloadType.EVENT and msg.marker and self._dtmf
+            msg.payload_type == RtpPayloadType.EVENT
+            and msg.marker
+            and self._dtmf is not None
         ):  # pragma: no cover
             await self._dtmf(PHONE_EVENT_KEYS[msg.payload[0]])
 

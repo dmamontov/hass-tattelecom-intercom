@@ -59,6 +59,7 @@ def auto_enable_custom_integrations(enable_custom_integrations):
     yield
 
 
+@pytest.mark.asyncio
 async def test_open(hass: HomeAssistant) -> None:
     """Test open.
 
@@ -135,6 +136,7 @@ async def test_open(hass: HomeAssistant) -> None:
         assert len(mock_client.mock_calls) == _prev_calls + 2
 
 
+@pytest.mark.asyncio
 async def test_open_current_call(hass: HomeAssistant) -> None:
     """Test open.
 
@@ -205,6 +207,7 @@ async def test_open_current_call(hass: HomeAssistant) -> None:
         assert len(mock_client.mock_calls) == _prev_calls + 1
 
 
+@pytest.mark.asyncio
 async def test_answer_hangup(hass: HomeAssistant) -> None:
     """Test answer and hangup.
 
@@ -285,6 +288,7 @@ async def test_answer_hangup(hass: HomeAssistant) -> None:
         )
 
 
+@pytest.mark.asyncio
 async def test_decline(hass: HomeAssistant) -> None:
     """Test decline.
 
