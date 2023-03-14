@@ -6,6 +6,17 @@ from __future__ import annotations
 
 from enum import Enum, IntEnum
 
+from homeassistant.backports.enum import StrEnum
+
+from custom_components.tattelecom_intercom.const import DOMAIN
+
+
+class DeviceClass(StrEnum):
+    """DeviceClass enum"""
+
+    SIP_STATE = f"{DOMAIN}__sip_state"
+    CALL_STATE = f"{DOMAIN}__call_state"
+
 
 class Method(str, Enum):
     """Method enum"""

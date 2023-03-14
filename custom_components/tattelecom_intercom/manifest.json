@@ -1,13 +1,21 @@
 {
   "domain": "tattelecom_intercom",
   "name": "Tattelecom Intercom / Таттелеком Домофон",
-  "version": "1.1.0",
-  "documentation": "https://github.com/dmamontov/hass-tattelecom-intercom/wiki",
-  "issue_tracker": "https://github.com/dmamontov/hass-tattelecom-intercom/issues",
+  "codeowners": [
+    "@dmamontov"
+  ],
   "config_flow": true,
-  "requirements": ["httpx[http2]"],
-  "dependencies": ["generic", "ffmpeg", "http"],
-  "codeowners": ["@dmamontov"],
+  "dependencies": [
+    "generic",
+    "ffmpeg",
+    "http"
+  ],
+  "documentation": "https://github.com/dmamontov/hass-tattelecom-intercom/wiki",
   "iot_class": "cloud_polling",
-  "quality_scale": "platinum"
+  "issue_tracker": "https://github.com/dmamontov/hass-tattelecom-intercom/issues",
+  "quality_scale": "platinum",
+  "requirements": [
+    "httpx[http2]"
+  ],
+  "version": "2.0.0"
 }

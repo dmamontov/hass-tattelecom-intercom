@@ -72,6 +72,7 @@ async def async_setup_entry(
     )
 
 
+# pylint: disable=too-many-ancestors
 class IntercomSwitch(IntercomEntity, SwitchEntity):
     """Intercom switch entry."""
 

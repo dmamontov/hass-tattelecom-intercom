@@ -71,6 +71,7 @@ BUTTONS: tuple[ButtonEntityDescription, ...] = (
 )
 
 
+# pylint: disable=too-many-ancestors
 async def async_setup_entry(
     hass: HomeAssistant,
     config_entry: ConfigEntry,

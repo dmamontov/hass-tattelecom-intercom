@@ -21,9 +21,6 @@ PLATFORMS: Final = [
     Platform.MEDIA_PLAYER,
 ]
 
-DEVICE_CLASS_SIP_STATE: Final = f"{DOMAIN}__sip_state"
-DEVICE_CLASS_CALL_STATE: Final = f"{DOMAIN}__call_state"
-
 """Diagnostic const"""
 DIAGNOSTIC_DATE_TIME: Final = "date_time"
 DIAGNOSTIC_MESSAGE: Final = "message"
