@@ -21,8 +21,6 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import (
     ATTR_UPDATE_STATE,
-    DEVICE_CLASS_CALL_STATE,
-    DEVICE_CLASS_SIP_STATE,
     SENSOR_CALL_STATE,
     SENSOR_CALL_STATE_NAME,
     SENSOR_SIP_STATE,
@@ -31,7 +29,7 @@ from .const import (
     SIGNAL_SIP_STATE,
 )
 from .entity import IntercomEntity
-from .enum import CallState, VoipState
+from .enum import CallState, VoipState, DeviceClass
 from .updater import IntercomUpdater, async_get_updater
 
 PARALLEL_UPDATES = 0
@@ -54,7 +52,7 @@ SENSORS: tuple[SensorEntityDescription, ...] = (
         key=SENSOR_SIP_STATE,
         name=SENSOR_SIP_STATE_NAME,
         icon="mdi:phone-voip",
-        device_class=DEVICE_CLASS_SIP_STATE,
+        device_class=DeviceClass.SIP_STATE,
         entity_category=EntityCategory.DIAGNOSTIC,
         entity_registry_enabled_default=True,
     ),
@@ -63,7 +61,7 @@ SENSORS: tuple[SensorEntityDescription, ...] = (
         name=SENSOR_CALL_STATE_NAME,
         icon=ICONS[SENSOR_CALL_STATE][CallState.ENDED.value],
         entity_category=EntityCategory.DIAGNOSTIC,
-        device_class=DEVICE_CLASS_CALL_STATE,
+        device_class=DeviceClass.CALL_STATE,
         entity_registry_enabled_default=True,
     ),
 )
@@ -94,6 +92,7 @@ async def async_setup_entry(
     async_add_entities(entities)
 
 
+# pylint: disable=too-many-ancestors
 class IntercomSensor(IntercomEntity, SensorEntity):
     """Intercom sensor entry."""
 
