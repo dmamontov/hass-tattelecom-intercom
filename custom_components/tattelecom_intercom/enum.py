@@ -18,21 +18,21 @@ class DeviceClass(StrEnum):
     CALL_STATE = f"{DOMAIN}__call_state"
 
 
-class Method(str, Enum):
+class Method(StrEnum):
     """Method enum"""
 
     GET = "GET"
     POST = "POST"
 
 
-class ApiVersion(str, Enum):
+class ApiVersion(StrEnum):
     """Api version enum"""
 
     V1 = "v1"
     V2 = "v2"
 
 
-class CallState(str, Enum):
+class CallState(StrEnum):
     """Call state enum"""
 
     DIALING = "dialing"
@@ -41,7 +41,7 @@ class CallState(str, Enum):
     ENDED = "ended"
 
 
-class VoipState(str, Enum):
+class VoipState(StrEnum):
     """Voip state enum"""
 
     INACTIVE = "inactive"
@@ -64,7 +64,7 @@ class MessageType(IntEnum):
     RESPONSE = 0
 
 
-class RtpProtocol(str, Enum):
+class RtpProtocol(StrEnum):
     """Rtp protocol"""
 
     UDP = "udp"
@@ -72,7 +72,7 @@ class RtpProtocol(str, Enum):
     SAVP = "RTP/SAVP"
 
 
-class SendMode(str, Enum):
+class SendMode(StrEnum):
     """Send mode"""
 
     RECV_ONLY = "recvonly"
@@ -202,7 +202,7 @@ class RtpPayloadType(Enum):
     UNKNOWN = "UNKNOWN", 0, 0, "UNKNOWN CODEC"
 
 
-class TransmitType(str, Enum):
+class TransmitType(StrEnum):
     """Rtp transmit type"""
 
     RECVONLY = "recvonly"
